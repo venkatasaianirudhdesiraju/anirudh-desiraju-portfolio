@@ -13,7 +13,7 @@ type OllamaStatus = "checking" | "online" | "offline";
 
 const SUGGESTIONS = [
   "What's his strongest tech stack?",
-  "Tell me about Odysseus.",
+  "Tell me about the Lab tools.",
   "What did he do at Intel?",
   "Is he open to new roles?",
 ];

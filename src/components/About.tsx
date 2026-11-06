@@ -30,13 +30,13 @@ export default function About() {
         <Reveal delay={0.2} className="md:col-span-3">
           <p className="text-lg leading-relaxed text-foreground/90">{profile.summary}</p>
           <p className="mt-4 leading-relaxed text-muted">
-            Outside of client work, I maintain{" "}
+            Outside of client work, I self-host a fork of Odysseus, an open-source AI workspace, and
+            built the six tools in{" "}
             <a href="#work" className="text-accent underline-offset-4 hover:underline">
-              Odysseus
-            </a>
-            , an open-source self-hosted AI workspace, and keep this portfolio&apos;s chat widget
-            running on a local Llama model on my own desktop — no cloud API, no data leaving this
-            machine.
+              the Lab
+            </a>{" "}
+            below — including this portfolio&apos;s chat widget, which runs on a local Llama model on
+            my own desktop. No cloud API, no data leaving this machine.
           </p>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">

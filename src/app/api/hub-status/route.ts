@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export const HUB_URL = process.env.HUB_URL ?? "http://127.0.0.1:8000";
+const HUB_URL = process.env.HUB_URL ?? "http://127.0.0.1:8000";
 
 export async function GET() {
   try {

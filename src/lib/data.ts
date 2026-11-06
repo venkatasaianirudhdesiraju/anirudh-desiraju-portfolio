@@ -10,7 +10,7 @@ export const profile = {
   email: "desirajuanirudh.py@gmail.com",
   phone: "+1 (916) 827-7411",
   linkedin: "https://www.linkedin.com/in/anirudhdesiraju/",
-  github: "https://github.com/pewdiepie-archdaemon",
+  github: "https://github.com/venkatasaianirudhdesiraju",
   resumeHref: "/resume.pdf",
   yearsExperience: 6,
   certifications: ["AWS Certified Developer – Associate"],
@@ -104,22 +104,6 @@ export type Project = {
   image?: string;
   featured?: boolean;
   stats?: { label: string; value: string }[];
-};
-
-export const flagshipProject: Project = {
-  name: "Odysseus",
-  tagline: "A self-hosted AI workspace — chat, agents, research, documents, email, and local models.",
-  description:
-    "Odysseus is an open-source, self-hosted workspace that brings chat, autonomous agents, deep research, a writing-first document editor, email triage, notes/tasks/calendar, and local model serving into one app. It runs fully on your own hardware via Docker, with hardware-aware model recommendations and MCP/tool support for agents that can use files, shell, and skills. Built and maintained as an active multi-contributor open-source project.",
-  stack: ["Python", "Docker", "MCP", "Local LLMs (Ollama)", "React", "IMAP/SMTP", "CalDAV"],
-  href: "https://github.com/pewdiepie-archdaemon/odysseus",
-  image: "/images/odysseus-browser.jpg",
-  featured: true,
-  stats: [
-    { label: "commits authored", value: "420+" },
-    { label: "contributors", value: "10+" },
-    { label: "core features", value: "8" },
-  ],
 };
 
 export const projects: Project[] = [

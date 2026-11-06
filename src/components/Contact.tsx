@@ -11,7 +11,7 @@ const links = [
   { label: "Email", value: profile.email, href: `mailto:${profile.email}`, icon: Mail },
   { label: "Phone", value: profile.phone, href: `tel:${profile.phone.replace(/[^\d+]/g, "")}`, icon: Phone },
   { label: "LinkedIn", value: "/in/anirudhdesiraju", href: profile.linkedin, icon: LinkedinGlyph },
-  { label: "GitHub", value: "@pewdiepie-archdaemon", href: profile.github, icon: GithubGlyph },
+  { label: "GitHub", value: "@venkatasaianirudhdesiraju", href: profile.github, icon: GithubGlyph },
 ];
 
 export default function Contact() {

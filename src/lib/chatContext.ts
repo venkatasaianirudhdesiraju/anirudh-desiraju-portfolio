@@ -1,4 +1,4 @@
-import { experience, flagshipProject, profile, projects, skills } from "@/lib/data";
+import { experience, labProjects, profile, projects, skills } from "@/lib/data";
 
 export const OLLAMA_HOST = "http://127.0.0.1:11434";
 export const OLLAMA_MODEL = "llama3.1:8b";
@@ -12,7 +12,7 @@ export function buildSystemPrompt(): string {
     .join("\n");
 
   const projectText = [
-    `- ${flagshipProject.name} (flagship, open source): ${flagshipProject.description} Stack: ${flagshipProject.stack.join(", ")}. Repo: ${flagshipProject.href}.`,
+    ...labProjects.map((p) => `- ${p.name} (built by ${profile.shortName}, part of "The Lab"): ${p.description} Stack: ${p.stack.join(", ")}.`),
     ...projects.map((p) => `- ${p.name}: ${p.description} Stack: ${p.stack.join(", ")}.`),
   ].join("\n");
 
@@ -35,6 +35,9 @@ ${expText}
 
 ## Projects
 ${projectText}
+
+## Other self-hosted tools
+${profile.shortName} self-hosts a fork of Odysseus, an open-source AI workspace (chat, agents, research, documents, email, local models) — he runs it for his own use but did NOT build or maintain it; it is someone else's open-source project. Never describe it as his own work.
 
 ## Skills
 ${skillText}
