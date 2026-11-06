@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, Download, Mail } from "lucide-react";
 import { profile } from "@/lib/data";
+import { withBasePath } from "@/lib/basePath";
 import { GithubGlyph, LinkedinGlyph } from "@/components/icons/Brand";
 
 const ROLES = [
@@ -108,7 +109,7 @@ export default function Hero() {
             <ArrowDown className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" />
           </a>
           <a
-            href={profile.resumeHref}
+            href={withBasePath(profile.resumeHref)}
             download
             className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-3 font-mono text-sm text-foreground transition-colors hover:border-accent hover:text-accent"
           >

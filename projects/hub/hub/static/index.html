@@ -1,0 +1,44 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hub · Anirudh</title><link rel="stylesheet" href="/static/style.css"><style>
+.hero{padding:3.5rem 0 2rem}.hero h1{font-size:clamp(36px,6vw,56px);line-height:1.05}
+.apps{display:grid;gap:1.1rem;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.app{display:block;color:inherit;background:var(--card);border-radius:22px;padding:1.4rem;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.app:hover{text-decoration:none;transform:translateY(-3px);box-shadow:0 2px 4px rgba(0,0,0,.05),0 16px 40px rgba(0,0,0,.1)}
+.icon{width:52px;height:52px;border-radius:13px;display:grid;place-items:center;color:#fff;margin-bottom:1rem}
+.icon svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.app h3{font-size:19px;margin:0 0 .25rem;letter-spacing:-.01em}.app p{margin:0;color:var(--muted);font-size:14px}
+.stat{margin-top:1rem;font-size:13px;color:var(--text);min-height:1.2em}.off{opacity:.55}
+.section{margin:2.5rem 0 1rem;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+</style></head><body>
+<nav class="nav"><div class="nav-in"><span class="brand">Hub</span><span style="flex:1"></span>
+<a class="small" href="http://localhost:3000" target="_blank">Portfolio ↗</a></div></nav>
+<main><section class="hero"><p class="muted" id="date"></p><h1 id="greet">Welcome back.</h1>
+<p class="sub" id="line">Everything you're building, in one place.</p></section>
+<div class="section">Life</div><div class="apps" id="life"></div>
+<div class="section">Money</div><div class="apps" id="money"></div>
+<div class="section">Engineering</div><div class="apps" id="eng"></div></main>
+<script>
+const I={life:'<path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/>',
+ chart:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',doc:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+ bug:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/>',card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>'};
+const A={life:[['/lifeos/#today','LifeOS','Today, habits, reading, fitness, risks, goals.','#ff2d55,#ff9500','life','lifeos']],
+ money:[['/lifeos/#money','Money','Cards, payoff plan, spending, net worth.','#34c759,#30b0c7','card','money'],
+        ['/ui/tradescout','TradeScout','Daily top-10 trade ideas with calibrated confidence.','#0071e3,#5e5ce6','chart','ts'],
+        ['/apisaas/docs','API Starter','Sell any tool as a paid API: keys, plans, billing.','#8e8e93,#3a3a3c','key','']],
+ eng:[['/jobfit/','JobFit','Score your resume against any job posting.','#af52de,#5856d6','doc',''],
+      ['/ui/loglens','LogLens','Collapse test failures into root causes.','#ff9500,#ff3b30','bug',''],
+      ['/ui/dataguard','DataGuard','Validate any CSV, get a quality report.','#30b0c7,#0071e3','shield','']]};
+for(const [k,list] of Object.entries(A))document.getElementById(k).innerHTML=list.map(([h,t,d,g,i,s])=>{const[c1,c2]=g.split(',');
+ return `<a class="app" href="${h}"><div class="icon" style="background:linear-gradient(135deg,${c1},${c2})"><svg viewBox="0 0 24 24">${I[i]}</svg></div>
+ <h3>${t}</h3><p>${d}</p><div class="stat" id="s_${s}"></div></a>`}).join('');
+const h=new Date().getHours();document.getElementById('greet').textContent=`Good ${h<12?'morning':h<18?'afternoon':'evening'}, Anirudh.`;
+document.getElementById('date').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+const set=(id,html)=>{const e=document.getElementById('s_'+id);if(e)e.innerHTML=html};
+fetch('/lifeos/api/today').then(r=>r.json()).then(d=>{set('lifeos',`📖 ${d.pages_today}/${d.pages_target} pages · ✅ ${d.habits.filter(x=>x.done).length}/${d.habits.length} habits · ${d.open_tasks} tasks`);
+ document.getElementById('line').textContent=d.principle;}).catch(()=>{});
+fetch('/lifeos/api/money').then(r=>r.json()).then(m=>set('money',`Net ${m.net_worth<0?'-':''}$${Math.abs(m.net_worth).toLocaleString()} · debt $${m.cards.total_balance.toLocaleString()} · ${m.cards.utilization}% used`)).catch(()=>{});
+fetch('/api/tradescout/status').then(r=>r.json()).then(s=>{if(s.latest)set('ts',`${s.latest.date}: top pick <b>${s.latest.picks[0]?.ticker||'—'}</b> ${s.latest.picks[0]?.side||''} ${s.latest.picks[0]?.confidence||''}%`);
+ else set('ts','<span class="muted">No picks yet. Open to run.</span>')}).catch(()=>{});
+fetch('/health').then(r=>r.json()).then(h=>{for(const[k,v] of Object.entries(h.apps))if(v!=='ok')document.querySelectorAll(`a[href^="${k}"]`).forEach(a=>{a.classList.add('off');a.title=v})});
+</script></body></html>

@@ -1,0 +1,4 @@
+[
+  {"signature": "requests.exceptions.ConnectionError: HTTPConnectionPool(host=<IP>, port=<N>): Max retries exceeded with url: <PATH>",
+   "ticket": "INFRA-482", "notes": "Staging API host down during nightly window; retry after 03:00."}
+]

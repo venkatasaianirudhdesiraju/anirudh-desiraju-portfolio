@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JobFit</title><link rel="stylesheet" href="/static/style.css"><style>
+textarea{height:240px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace}.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:760px){.two{grid-template-columns:1fr}}.score{font-size:56px;font-weight:700;letter-spacing:-.03em}
+.chip{display:inline-block;padding:.15rem .6rem;margin:.15rem;border-radius:999px;font-size:13px}.ok{background:#e3f8e8;color:#1a7f37}
+.miss{background:#ffe5e3;color:#c4170c}.pref{background:#fff1db;color:#a35a00}pre{white-space:pre-wrap;background:var(--bg);padding:1rem;border-radius:12px}
+</style></head><body><nav class="nav"><div class="nav-in"><a class="brand" href="/">‹ Hub</a><span class="brand">JobFit</span></div></nav><main>
+<h1>JobFit</h1><p class="sub">Paste your resume and a job description. Everything runs locally.</p><div class="card">
+<div class="two"><div><b>Resume</b><textarea id="r"></textarea></div><div><b>Job description</b><textarea id="j"></textarea></div></div>
+<p><label><input type="checkbox" id="t"> Tailor bullets with local AI (Ollama)</label></p>
+<button class="btn" onclick="go()">Score my fit</button></div><div id="out" class="card" style="margin-top:1rem"></div></main>
+<script>
+const chips=(xs,c)=>xs.map(x=>`<span class="chip ${c}">${x}</span>`).join('')||'—';
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function go(){
+  const out=document.getElementById('out');out.innerHTML='<p>Scoring…</p>';
+  const res=await fetch('fit',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({resume:r.value,job_description:j.value,tailor:t.checked})});
+  const d=await res.json();
+  if(!res.ok){out.innerHTML='<p>Need at least 50 characters in each box.</p>';return}
+  out.innerHTML=`<p class="score">${d.score}%</p>
+  <p>Skill coverage ${d.skill_coverage}% · text similarity ${d.semantic_similarity} · years: JD ${d.required_years??'—'} / you ${d.resume_years??'—'}</p>
+  <h3>Matched</h3>${chips(d.matched,'ok')}<h3>Missing (required)</h3>${chips(d.missing_required,'miss')}
+  <h3>Missing (preferred)</h3>${chips(d.missing_preferred,'pref')}<h3>JD keywords not in resume</h3>${chips(d.keyword_gaps,'pref')}
+  <h3>What to do</h3><ul>${d.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+  ${d.tailored?`<h3>Tailored draft</h3><pre>${esc(d.tailored)}</pre>`:''}`;
+}
+</script></body></html>

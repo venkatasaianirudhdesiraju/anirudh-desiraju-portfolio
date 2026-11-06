@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+collected 214 items
+________________________________ test_login_ok _________________________________
+    def test_login_ok(client):
+>       r = client.post("/login", json=creds)
+E       requests.exceptions.ConnectionError: HTTPConnectionPool(host='10.0.4.12', port=8080): Max retries exceeded with url: /login
+tests/test_auth.py:22: ConnectionError
+_______________________________ test_logout_ok _________________________________
+    def test_logout_ok(client):
+>       r = client.post("/logout")
+E       requests.exceptions.ConnectionError: HTTPConnectionPool(host='10.0.4.13', port=8080): Max retries exceeded with url: /logout
+tests/test_auth.py:41: ConnectionError
+____________________________ test_scan_calibration _____________________________
+    def test_scan_calibration(scanner):
+>       assert scanner.offset_mm < 0.05
+E       AssertionError: assert 0.0731 < 0.05
+tests/test_calibration.py:88: AssertionError
+____________________________ test_export_dicom_header __________________________
+E       KeyError: 'PatientID'
+src/export/dicom.py:120: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_auth.py::test_login_ok

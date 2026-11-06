@@ -146,6 +146,60 @@ export const projects: Project[] = [
   },
 ];
 
+export type LabProject = Project & { hubPath: string };
+
+// Open-source tools in /projects — all run together locally behind one launcher ("Hub": `python -m hub`).
+export const labProjects: LabProject[] = [
+  {
+    name: "TradeScout",
+    tagline: "ML research bot · trained from scratch",
+    description:
+      "Daily stock research pipeline: prices, news RSS, SEC filings and Reddit → sentiment + 27 engineered features → gradient-boosted model with walk-forward validation, isotonic calibration and a post-cost backtest. Outputs a sized top-10 with Kelly/ATR risk limits and scores itself in a paper-trading ledger.",
+    stack: ["Python", "scikit-learn", "Pandas", "NLP", "SQLite"],
+    hubPath: "/ui/tradescout",
+  },
+  {
+    name: "LogLens",
+    tagline: "Test-failure root-cause analyzer",
+    description:
+      "Collapses hundreds of CI failures into a handful of root causes: log parsing for pytest/unittest/JUnit, token normalization, TF-IDF clustering, a known-issues knowledge base, and optional local-LLM triage via Ollama. CLI, REST API and CI gate.",
+    stack: ["Python", "FastAPI", "scikit-learn", "Ollama"],
+    hubPath: "/ui/loglens",
+  },
+  {
+    name: "DataGuard",
+    tagline: "Declarative data-quality gates",
+    description:
+      "YAML-defined schema and quality rules for CSV/Parquet/Excel (types, ranges, regex, composite keys, robust outliers), auto-inferred rules, self-contained HTML reports and non-zero exit codes for CI/CD pipelines.",
+    stack: ["Python", "Pandas", "YAML", "CI/CD"],
+    hubPath: "/ui/dataguard",
+  },
+  {
+    name: "JobFit",
+    tagline: "Resume ↔ job-description matcher",
+    description:
+      "Scores resume fit with a 90-skill alias taxonomy, required-vs-preferred weighting, TF-IDF similarity and experience checks; surfaces ATS keyword gaps and drafts tailored bullets with a local LLM that is constrained against inventing experience.",
+    stack: ["Python", "FastAPI", "NLP", "Ollama"],
+    hubPath: "/jobfit/",
+  },
+  {
+    name: "apisaas",
+    tagline: "Production starter for paid APIs",
+    description:
+      "API keys stored as hashes, plans and monthly quotas, token-bucket rate limiting, per-endpoint usage metering, and SDK-free Stripe webhook signature verification for upgrades and cancellations.",
+    stack: ["FastAPI", "SQLite", "Stripe", "Docker"],
+    hubPath: "/apisaas/docs",
+  },
+  {
+    name: "LifeOS",
+    tagline: "Private personal-ops dashboard",
+    description:
+      "Schema-driven app (one config generates the DB, API and UI) for tasks, habits with streaks, reading plans, fitness, risks, goals, and personal finance: bank-CSV import with auto-categorization, card utilization and avalanche payoff simulation.",
+    stack: ["FastAPI", "SQLite", "Vanilla JS"],
+    hubPath: "/lifeos/",
+  },
+];
+
 export type SkillGroup = { category: string; skills: string[] };
 
 export const skills: SkillGroup[] = [

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.db
+*.db-wal
+*.db-shm
+.tradescout/
+.lifeos/
+.deps_installed
+.venv/
+report.html
+report.md

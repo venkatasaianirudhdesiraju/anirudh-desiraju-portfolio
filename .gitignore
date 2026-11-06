@@ -34,3 +34,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# leftover scratch files
+/_to_delete/
+
+# python (projects/ lab tools)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+

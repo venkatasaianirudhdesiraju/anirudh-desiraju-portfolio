@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, Moon, Sun, Terminal, X } from "lucide-react";
+import { LayoutGrid, Menu, Moon, Sun, Terminal, X } from "lucide-react";
 import { navLinks, profile } from "@/lib/data";
+import { withBasePath } from "@/lib/basePath";
 import { useTheme } from "@/components/ThemeProvider";
+import { useHub } from "@/lib/useHub";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, toggle } = useTheme();
+  const hub = useHub();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -81,6 +84,16 @@ export default function Nav() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {hub.online && (
+            <a
+              href={hub.url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-xs text-accent transition-colors hover:bg-accent/20"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" /> Apps
+            </a>
+          )}
           <button
             onClick={toggle}
             aria-label="Toggle theme"
@@ -89,7 +102,7 @@ export default function Nav() {
             {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
           </button>
           <a
-            href={profile.resumeHref}
+            href={withBasePath(profile.resumeHref)}
             download
             className="hidden rounded-lg border border-border px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent sm:inline-block"
           >
@@ -127,7 +140,7 @@ export default function Nav() {
               </a>
             ))}
             <a
-              href={profile.resumeHref}
+              href={withBasePath(profile.resumeHref)}
               download
               onClick={() => setMenuOpen(false)}
               className="px-5 py-3 font-mono text-sm text-accent"

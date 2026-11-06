@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LifeOS</title><link rel="stylesheet" href="static/style.css"></head><body>
+<nav class="nav"><div class="nav-in"><a class="brand" href="../" id="hubLink">‹ Hub</a><span class="brand">LifeOS</span>
+<div class="tabs" id="tabs"></div></div></nav>
+<main id="main"></main><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s), api=(p,o={})=>fetch('api/'+p,{headers:{'Content-Type':'application/json'},...o}).then(async r=>{if(!r.ok)throw new Error(await r.text());return r.json()});
+const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=n=>(n<0?'-':'')+'$'+Math.abs(+n||0).toLocaleString(undefined,{maximumFractionDigits:0});
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800)};
+const bar=(pct,c='')=>`<div class="bar ${c}"><i style="width:${Math.max(0,Math.min(100,pct||0))}%"></i></div>`;
+let SCHEMA={};
+const TABS=[['today','Today'],['money','Money'],['books','Reading'],['workouts','Fitness'],['tasks','Tasks'],['risks','Risks'],
+ ['income','Earn'],['investments','Investments'],['youtube','YouTube'],['research','Research'],['goals','Goals'],['purchases','Purchases'],['cards','Cards']];
+if(location.pathname==='/'||!location.pathname.includes('/lifeos'))$('#hubLink').classList.add('hide');
+
+function nav(){const cur=location.hash.slice(1)||'today';
+ $('#tabs').innerHTML=TABS.map(([k,l])=>`<button class="tab ${k===cur?'on':''}" onclick="location.hash='${k}'">${l}</button>`).join('');
+ (VIEWS[cur]||(()=>table(cur)))();}
+window.onhashchange=nav;
+
+const VIEWS={
+async today(){const d=await api('today');
+ const hab=d.habits.map(h=>`<div class="row"><button class="check ${h.done?'on':''}" onclick="habit('${h.habit}')">${h.done?'✓':''}</button>
+   <span style="flex:1">${h.habit.replace(/_/g,' ')}</span><span class="muted small">${h.streak?'🔥 '+h.streak+'d':''}</span></div>`).join('');
+ const books=d.reading.map(b=>`<div class="row"><div style="flex:1"><b>${esc(b.title)}</b><div class="muted small">${b.read_today}/${b.daily_pages} pages today · ${Math.round(b.pages_read)}/${b.total_pages}</div>
+   ${bar(100*b.pages_read/b.total_pages)}</div><button class="btn sm" onclick="readPages(${b.id},${b.daily_pages})">+${b.daily_pages}</button></div>`).join('')||'<p class="muted">No books in progress.</p>';
+ const tasks=d.tasks.map(t=>`<div class="row"><button class="check" onclick="doneTask(${t.id})"></button><span style="flex:1">${esc(t.title)}</span><span class="pill ${t.priority}">${t.priority}</span></div>`).join('');
+ const risks=d.risks.map(r=>`<div class="row"><div><b>${esc(r.risk)}</b> <span class="pill r">${r.likelihood*r.impact}/25</span><div class="muted small">${esc(r.mitigation)}</div></div></div>`).join('');
+ const goals=d.goals.map(g=>`<div style="margin:.5rem 0"><div class="small"><b>${esc(g.goal)}</b> <span class="muted">${g.current||0} / ${g.target} ${esc(g.unit)}</span></div>${bar(100*(g.current||0)/(g.target||1),'g')}</div>`).join('');
+ const cards=d.cards_due.map(c=>`<div class="row"><span style="flex:1">${esc(c.name)} — ${money(c.balance)}</span><span class="pill o">due in ${c.days_left}d</span></div>`).join('');
+ $('#main').innerHTML=`<p class="muted">${new Date(d.date+'T12:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</p>
+ <h1>Good ${new Date().getHours()<12?'morning':new Date().getHours()<18?'afternoon':'evening'}.</h1><p class="sub">${esc(d.principle)}</p>
+ <div class="kpis"><div class="card kpi"><div class="v">${d.pages_today}/${d.pages_target}</div><div class="l">pages today</div></div>
+ <div class="card kpi"><div class="v">${d.open_tasks}</div><div class="l">open tasks${d.overdue?` · <span class="neg">${d.overdue} overdue</span>`:''}</div></div>
+ <div class="card kpi"><div class="v">${d.habits.filter(h=>h.done).length}/${d.habits.length}</div><div class="l">habits done</div></div></div>
+ <div class="grid"><div class="card"><h2>Today's workout</h2>${d.workout?`<h3>${esc(d.workout.name)} · ${d.workout.minutes} min</h3><p class="muted">${esc(d.workout.details)}</p>`:'Rest'}</div>
+ <div class="card"><h2>Reading</h2>${books}</div><div class="card"><h2>Habits</h2>${hab}</div>
+ <div class="card"><h2>Focus tasks</h2>${tasks||'<p class="muted">All clear.</p>'}</div>
+ <div class="card"><h2>Top risks</h2>${risks}</div><div class="card"><h2>Goals</h2>${goals}</div>
+ ${cards?`<div class="card"><h2>Card payments due</h2>${cards}</div>`:''}</div>`;},
+
+async money(){const m=await api('money'),c=m.cards,s=m.spending,inv=m.investments;
+ const maxCat=Math.max(1,...Object.values(s.by_category));
+ $('#main').innerHTML=`<h1>Money</h1><p class="sub">Everything stays on this computer.</p>
+ <div class="kpis"><div class="card kpi"><div class="v ${m.net_worth<0?'neg':''}">${money(m.net_worth)}</div><div class="l">investments − card debt</div></div>
+ <div class="card kpi"><div class="v neg">${money(c.total_balance)}</div><div class="l">card debt</div></div>
+ <div class="card kpi"><div class="v">${c.utilization}%</div><div class="l">utilization</div>${bar(c.utilization,c.utilization>30?'r':'g')}</div>
+ <div class="card kpi"><div class="v">${money(c.monthly_interest)}</div><div class="l">interest / month</div></div>
+ <div class="card kpi"><div class="v">${money(inv.value)}</div><div class="l">invested <span class="${inv.gain>=0?'pos':'neg'}">${inv.gain_pct}%</span></div></div></div>
+ <div class="grid"><div class="card"><h2>Debt payoff plan</h2>${c.advice.map(a=>`<p>${esc(a)}</p>`).join('')||'<p class="muted">Add your cards in the Cards tab.</p>'}
+ ${c.payoff_months?`<p class="muted small">Paying the minimums with the avalanche method, you'd be debt-free in about <b>${c.payoff_months} months</b> and pay ${money(c.payoff_interest)} in interest. Adding extra each month shortens this a lot.</p>`:''}
+ ${c.cards.map(k=>`<div style="margin:.6rem 0"><div class="small"><b>${esc(k.name)}</b> <span class="muted">${money(k.balance)} / ${money(k.limit)} · ${k.apr}% APR</span></div>${bar(k.utilization,k.utilization>30?'r':'g')}</div>`).join('')}</div>
+ <div class="card"><h2>Spending this month</h2><p class="muted small">Needs ${money(s.needs)} · Wants ${money(s.wants)}</p>
+ ${Object.entries(s.by_category).map(([k,v])=>`<div class="small" style="margin-top:.5rem">${esc(k)} <span class="muted">${money(v)}</span></div>${bar(100*v/maxCat)}`).join('')||'<p class="muted">No purchases this month.</p>'}</div>
+ <div class="card"><h2>Import transactions</h2><p class="muted small">Download a CSV from your bank or card website and drop it here. It's categorized automatically and duplicates are skipped.</p>
+ <div class="form"><input type="file" id="csv" accept=".csv"><input id="csvCard" placeholder="Card name (optional)"></div><button class="btn" onclick="importCsv()">Import</button></div>
+ <div class="card"><h2>Monthly spend</h2>${Object.entries(s.by_month).slice(-6).map(([k,v])=>`<div class="small" style="margin-top:.5rem">${k} <span class="muted">${money(v)}</span></div>${bar(100*v/Math.max(...Object.values(s.by_month)))}`).join('')||'<p class="muted">—</p>'}</div></div>`;},
+};
+
+async function table(coll){const spec=SCHEMA[coll];if(!spec){$('#main').innerHTML='Not found';return}
+ const rows=await api('c/'+coll),F=spec.fields;
+ const cell=(r,f)=>{const v=r[f.name];
+   if(f.type==='select')return `<select onchange="patch('${coll}',${r.id},'${f.name}',this.value)">${f.options.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`;
+   if(f.type==='number')return `<input type="number" step="any" style="width:90px" value="${v??''}" onchange="patch('${coll}',${r.id},'${f.name}',+this.value)">`;
+   if(f.type==='longtext')return `<span class="muted small">${esc(v)}</span>`;
+   return `<span contenteditable onblur="patch('${coll}',${r.id},'${f.name}',this.innerText)">${esc(v)}</span>`;};
+ const extra=coll==='books'?`<p class="muted small">Daily target: <b>${rows.filter(b=>b.status==='reading').reduce((a,b)=>a+(b.daily_pages||0),0)} pages</b> across the books you're reading. When you finish one, the next queued book starts automatically.</p>`:
+   coll==='investments'?`<button class="btn ghost sm" onclick="api('investments/refresh',{method:'POST'}).then(r=>{toast('Updated '+r.updated);nav()}).catch(e=>toast('Install yfinance to refresh'))">Refresh prices</button>`:'';
+ $('#main').innerHTML=`<h1>${spec.label}</h1><p class="sub">${rows.length} items · click any value to edit.</p>${extra}
+ <div class="card wide scroll"><table><tr>${F.map(f=>`<th>${f.name.replace(/_/g,' ')}</th>`).join('')}<th></th></tr>
+ ${rows.map(r=>`<tr>${F.map(f=>`<td>${cell(r,f)}</td>`).join('')}<td><button class="btn ghost sm" onclick="del('${coll}',${r.id})">✕</button></td></tr>`).join('')}</table></div>
+ <div class="card wide" style="margin-top:1rem"><h2>Add</h2><div class="form">${F.map(f=>`<div><label>${f.name.replace(/_/g,' ')}</label>${
+   f.type==='select'?`<select id="n_${f.name}">${f.options.map(o=>`<option>${o}</option>`).join('')}</select>`:
+   f.type==='longtext'?`<textarea id="n_${f.name}"></textarea>`:`<input id="n_${f.name}" type="${f.type==='number'?'number':f.type==='date'?'date':'text'}" step="any">`}</div>`).join('')}</div>
+ <button class="btn" onclick="addRow('${coll}')">Add</button></div>`;}
+
+async function addRow(c){const d={};SCHEMA[c].fields.forEach(f=>{const v=$('#n_'+f.name).value;d[f.name]=f.type==='number'?(v===''?null:+v):v});
+ await api('c/'+c,{method:'POST',body:JSON.stringify(d)});toast('Added');nav();}
+async function patch(c,id,k,v){await api(`c/${c}/${id}`,{method:'PATCH',body:JSON.stringify({[k]:v})});toast('Saved');}
+async function del(c,id){if(confirm('Delete this item?')){await api(`c/${c}/${id}`,{method:'DELETE'});nav();}}
+async function habit(h){await api('habits/'+h,{method:'POST'});nav();}
+async function readPages(id,n){const p=prompt('Pages read?',n);if(p){await api('reading/'+id,{method:'POST',body:JSON.stringify({pages:+p})});toast('Nice. Logged '+p+' pages');nav();}}
+async function doneTask(id){await api('c/tasks/'+id,{method:'PATCH',body:JSON.stringify({status:'done'})});toast('Done ✓');nav();}
+async function importCsv(){const f=$('#csv').files[0];if(!f)return toast('Choose a CSV first');const fd=new FormData();fd.append('file',f);fd.append('card',$('#csvCard').value);
+ const r=await fetch('api/purchases/import',{method:'POST',body:fd}).then(r=>r.json());toast(`Added ${r.added}, skipped ${r.duplicates_skipped}`);nav();}
+api('schema').then(s=>{SCHEMA=s;nav()});
+</script></body></html>

@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LogLens</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<nav class="nav"><div class="nav-in"><a class="brand" href="/">‹ Hub</a><span class="brand">LogLens</span><span style="flex:1"></span><a class="small" href="/loglens/docs">API docs</a></div></nav>
+<main><h1>LogLens</h1><p class="sub">Drop CI or test logs. Failures are grouped by root cause, ranked by how many tests each one breaks, and can optionally be triaged by your local LLM.</p>
+<div class="card"><div class="form"><div><label>Log files</label><input type="file" id="f" multiple></div>
+<div><label>Similarity threshold</label><input type="number" id="th" value="0.6" step="0.05" min="0" max="1"></div>
+<div><label>&nbsp;</label><label style="display:flex;gap:.4rem;align-items:center;color:var(--text)"><input type="checkbox" id="llm" style="width:auto"> AI triage (Ollama)</label></div></div>
+<button class="btn" onclick="go()">Analyze</button></div><div id="out" style="margin-top:1rem"></div></main>
+<script>
+const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function go(){const fs=document.getElementById('f').files;if(!fs.length)return alert('Choose log files');const fd=new FormData();for(const f of fs)fd.append('files',f);
+ const out=document.getElementById('out');out.innerHTML='<div class="card">Analyzing…</div>';
+ const r=await fetch(`/loglens/analyze/files?threshold=${th.value}&use_llm=${llm.checked}`,{method:'POST',body:fd}).then(r=>r.json());
+ out.innerHTML=`<div class="kpis"><div class="card kpi"><div class="v">${r.total_failures}</div><div class="l">failures</div></div>
+ <div class="card kpi"><div class="v">${r.unique_root_causes}</div><div class="l">root causes</div></div><div class="card kpi"><div class="v">${r.known}</div><div class="l">known issues</div></div></div>
+ <div class="grid">${r.clusters.map(c=>`<div class="card"><span class="pill ${c.count>1?'r':''}">${c.count} failure${c.count>1?'s':''}</span>
+ <h3 style="margin-top:.6rem"><code>${esc(c.headline)}</code></h3><p class="muted small">${c.tests.map(esc).join(', ')}</p>
+ ${c.known_issue?`<p><span class="pill g">${esc(c.known_issue.ticket)}</span> ${esc(c.known_issue.notes||'')}</p>`:''}
+ ${c.summary?`<p style="white-space:pre-wrap" class="small">${esc(c.summary)}</p>`:''}</div>`).join('')}</div>`;}
+</script></body></html>

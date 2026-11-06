@@ -1,0 +1,10 @@
+table:
+  min_rows: 100
+  unique: [scan_id]
+columns:
+  scan_id:    {type: string, required: true, regex: "^S\\d{5}$"}
+  patient_id: {type: string, required: true, regex: "^P\\d{6}$"}
+  kvp:        {type: number, min: 70, max: 140}
+  dose_mgy:   {type: number, min: 0, max_null_pct: 1, outlier_z: 5}
+  status:     {allowed: [ok, retake, rejected]}
+  scanned_at: {type: datetime, not_future: true}

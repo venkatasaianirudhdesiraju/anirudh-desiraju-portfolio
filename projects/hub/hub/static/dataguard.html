@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DataGuard</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<nav class="nav"><div class="nav-in"><a class="brand" href="/">‹ Hub</a><span class="brand">DataGuard</span></div></nav>
+<main><h1>DataGuard</h1><p class="sub">Upload a CSV, Excel, JSON or Parquet file. Add YAML rules, or leave them blank and DataGuard will infer rules and profile the data.</p>
+<div class="card"><div class="form"><div><label>Data file</label><input type="file" id="d"></div><div><label>Rules file (optional)</label><input type="file" id="rf"></div></div>
+<label class="small muted">…or paste rules (YAML)</label><textarea id="rt" placeholder="columns:&#10;  email: {required: true, regex: '^[^@]+@[^@]+$'}&#10;  amount: {type: number, min: 0}"></textarea>
+<p><button class="btn" onclick="go()">Validate</button></p></div>
+<iframe id="out" style="width:100%;height:75vh;border:0;border-radius:18px;margin-top:1rem;background:#fff" class="hide"></iframe></main>
+<script>
+async function go(){const d=document.getElementById('d').files[0];if(!d)return alert('Choose a data file');const fd=new FormData();fd.append('data',d);
+ const rf=document.getElementById('rf').files[0];if(rf)fd.append('rules',rf);fd.append('rules_text',document.getElementById('rt').value);
+ const html=await fetch('/api/dataguard',{method:'POST',body:fd}).then(r=>r.text());const f=document.getElementById('out');f.classList.remove('hide');f.srcdoc=html;}
+</script></body></html>

@@ -1,0 +1,12 @@
+Senior Python Backend Engineer
+We build high-throughput APIs for healthcare data.
+
+Requirements
+- 5+ years of professional Python experience
+- FastAPI or Flask, REST APIs, PostgreSQL
+- AWS (Lambda, S3), Docker, Kubernetes
+- CI/CD with GitHub Actions; strong unit testing with pytest
+- Experience with Kafka or event-driven microservices
+
+Nice to have
+- Terraform, observability with Datadog, HIPAA experience, Redis

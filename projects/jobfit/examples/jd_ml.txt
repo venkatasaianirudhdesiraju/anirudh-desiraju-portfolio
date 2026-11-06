@@ -1,0 +1,10 @@
+Machine Learning Engineer, LLM Platform
+
+Requirements
+- 7+ years of experience in software engineering, 3+ in machine learning
+- PyTorch, LLMs, RAG, LangChain, vector databases
+- MLOps (MLflow), Spark, Databricks
+- Python, Kubernetes, GCP
+
+Preferred
+- Published research, CUDA, distributed training

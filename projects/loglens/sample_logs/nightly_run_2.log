@@ -1,0 +1,9 @@
+2026-11-04 02:13:55,120 INFO starting suite
+[FAIL] test_refresh_token
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='10.0.4.19', port=8080): Max retries exceeded with url: /refresh
+[FAIL] test_scan_calibration_slow
+AssertionError: assert 0.0912 < 0.05
+[FAIL] test_upload_large_series
+TimeoutError: upload of series 1f2e3d4c-aaaa-bbbb-cccc-1234567890ab did not finish in 300 seconds
+[FAIL] test_export_dicom_tags
+KeyError: 'PatientID'

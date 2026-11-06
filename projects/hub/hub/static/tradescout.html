@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TradeScout</title><link rel="stylesheet" href="/static/style.css"><style>.long{color:var(--green);font-weight:600}.short{color:var(--red);font-weight:600}pre{white-space:pre-wrap;font-size:12px;max-height:260px;overflow:auto}</style></head><body>
+<nav class="nav"><div class="nav-in"><a class="brand" href="/">‹ Hub</a><span class="brand">TradeScout</span></div></nav>
+<main><h1>TradeScout</h1><p class="sub">Daily top-10 trade ideas from a model trained from scratch, with calibrated confidence, stops and position sizes. Research only. Paper trade first.</p>
+<div class="card"><div class="form"><div><label>Account size ($)</label><input id="acct" type="number" value="10000"></div>
+<div><label>Risk per trade (%)</label><input id="risk" type="number" value="1" step="0.25"></div>
+<div><label>&nbsp;</label><label style="display:flex;gap:.4rem;align-items:center;color:var(--text)"><input type="checkbox" id="demo" style="width:auto"> Offline demo data</label></div></div>
+<button class="btn" onclick="run('picks')">Get today's picks</button> <button class="btn ghost" onclick="run('train')">Retrain model</button>
+<button class="btn ghost" onclick="run('score')">Score paper trades</button> <span class="muted small" id="st"></span></div>
+<div id="health" style="margin-top:1rem"></div><div id="picks" style="margin-top:1rem"></div>
+<div class="card" style="margin-top:1rem"><h2>Past reports</h2><div id="reports" class="small"></div></div>
+<div class="card hide" id="logc" style="margin-top:1rem"><h2>Log</h2><pre id="log"></pre></div></main>
+<script>
+const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));let timer;
+async function run(cmd){const fd=new FormData();fd.append('cmd',cmd);fd.append('account',acct.value);fd.append('risk',risk.value);fd.append('demo',demo.checked);
+ const r=await fetch('/api/tradescout/run',{method:'POST',body:fd});if(!r.ok)return alert(await r.text());poll();}
+async function poll(){clearTimeout(timer);const s=await fetch('/api/tradescout/status').then(r=>r.json());
+ st.textContent=s.running?`Running since ${s.started}… (training can take a few minutes)`:s.finished?`Last run ${s.finished}`:'';
+ if(s.log){logc.classList.remove('hide');log.textContent=s.log}
+ if(s.model){const m=s.model;health.innerHTML=`<div class="card" style="background:${m.has_edge?'color-mix(in srgb,var(--green) 12%,var(--card))':'color-mix(in srgb,var(--orange) 14%,var(--card))'}">
+  <h3>Model health</h3><p class="small">${esc(m.verdict)}</p><p class="muted small">Trained ${m.trained_at} · ${m.n_rows.toLocaleString()} rows · ${m.n_tickers} tickers · ${m.date_range.join(' → ')}</p></div>`}
+ if(s.latest){const L=s.latest;picks.innerHTML=`<div class="card scroll"><h2>Top ${L.picks.length} · ${L.date}</h2><table><tr><th>#</th><th>Ticker</th><th>Position</th><th>Confidence</th><th>Price</th><th>Stop</th><th>Target</th><th>Shares</th><th>Size</th><th>Why</th></tr>
+  ${L.picks.map((p,i)=>`<tr><td>${i+1}</td><td><b>${p.ticker}</b></td><td class="${p.side.toLowerCase()}">${p.side}</td><td>${p.confidence}%<div class="bar"><i style="width:${(p.confidence-50)*2}%"></i></div></td>
+  <td>${p.price}</td><td>${p.stop}</td><td>${p.target}</td><td>${p.shares}</td><td>$${p.dollars.toLocaleString()} <span class="muted">(${p.pct_of_account}%)</span></td><td class="muted small">${esc(p.why)}</td></tr>`).join('')}</table></div>`}
+ reports.innerHTML=s.reports.map(r=>`<a href="/api/tradescout/report/${r}" target="_blank">${r.replace('picks_','')}</a>`).join(' · ')||'<span class="muted">None yet</span>';
+ if(s.running)timer=setTimeout(poll,3000);}
+poll();
+</script></body></html>

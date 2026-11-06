@@ -1,0 +1,8 @@
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.3
+joblib>=1.3
+httpx>=0.27
+yfinance>=0.2.40       # price history (falls back to Stooq if unavailable)
+pytest>=8
+# Optional, better sentiment (large download): transformers torch  → set TRADESCOUT_FINBERT=1
